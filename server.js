@@ -1,10 +1,10 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
-
+import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import customerRoutes from "./routes/customerRoutes.js";
+
 import orderRoutes from "./routes/orderRoutes.js";
+import customerRoutes from "./routes/customerRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 dotenv.config();
@@ -12,19 +12,28 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+/* 🔧 IMPORTANT: CORS */
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // local frontend
+      "https://darkslateblue-porpoise-246865.hostingersite.com/" // later when deployed
+    ],
+    credentials: true,
+  })
+);
 
-app.use("/api/customers", customerRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-const PORT = process.env.PORT || 5000;
+app.use("/api/orders", orderRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
