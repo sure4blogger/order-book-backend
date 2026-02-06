@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Counter from "./Counter.js"; // 🔧 NEW: for order number auto-increment
+import Counter from "./Counter.js";
 
 /* ================= PAYMENT SCHEMA ================= */
 
@@ -21,7 +21,6 @@ const paymentSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
-    // 🔧 NEW: human-readable order number (ORDER-0001)
     orderNumber: {
       type: String,
       unique: true,
@@ -36,22 +35,14 @@ const orderSchema = new mongoose.Schema(
     jewelleryType: String,
     material: String,
 
-    // 🔧 EXISTING: weight in grams
-    weight: {
-      type: Number,
-    },
-
-    // 🔧 EXISTING: rate per gram (gold/silver)
-    rate: {
-      type: Number,
-    },
+    weight: Number,
+    rate: Number,
 
     totalPrice: {
       type: Number,
       required: true,
     },
 
-    // 🔧 EXISTING: making charges
     makingCharges: {
       type: Number,
       default: 0,
@@ -76,7 +67,6 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      // 🔧 EXISTING + CONFIRMED: Cancelled only used in Orders list
       enum: ["Pending", "In Progress", "Completed", "Delivered", "Cancelled"],
       default: "Pending",
     },
@@ -87,9 +77,9 @@ const orderSchema = new mongoose.Schema(
 );
 
 /* ================= AUTO ORDER NUMBER ================= */
-/* 🔥 NEW LOGIC: generates ORDER-0001, ORDER-0002, etc */
-orderSchema.pre("save", async function (next) {
-  if (this.orderNumber) return next();
+/* ✅ ASYNC STYLE — NO next() */
+orderSchema.pre("save", async function () {
+  if (this.orderNumber) return;
 
   const counter = await Counter.findOneAndUpdate(
     { name: "order" },
@@ -98,7 +88,6 @@ orderSchema.pre("save", async function (next) {
   );
 
   this.orderNumber = `ORDER-${String(counter.seq).padStart(4, "0")}`;
-  next();
 });
 
 export default mongoose.model("Order", orderSchema);
