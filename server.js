@@ -16,12 +16,13 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // local frontend
-      "https://darkslateblue-porpoise-246865.hostingersite.com/" // later when deployed
+      "http://localhost:5173",
+      "https://darkslateblue-porpoise-246865.hostingersite.com"
     ],
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 
